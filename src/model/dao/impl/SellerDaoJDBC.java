@@ -21,6 +21,12 @@ public class SellerDaoJDBC implements SellerDao {
 			+ "FROM seller s "
 			+ "INNER JOIN department d ON s.DepartmentId = d.Id "
 			+ "WHERE s.Id = ?";
+	private static String SQL_FIND_ALL = 
+			"SELECT seller.*,department.Name as DepName "
+			+ "FROM seller INNER JOIN department "
+			+ "ON seller.DepartmentId = department.Id "
+			+ "ORDER BY Name";
+	
 	private static String SQL_FIND_BY_DEPARTMENT = 
 			"SELECT seller.*,department.Name as DepName "
 			+ "FROM seller INNER JOIN department "
@@ -87,8 +93,44 @@ public class SellerDaoJDBC implements SellerDao {
 
 	@Override
 	public List<Seller> findAll() {
-		// TODO Auto-generated method stub
-		return null;
+		PreparedStatement pst = null;
+		ResultSet rs = null;
+		
+		Department dep = null;
+		Seller sel = null;
+		
+		List<Seller> listSeller = new ArrayList<>();
+		Map<Integer, Department> mapDepartment = new HashMap<>();
+
+		try {
+			pst = connection.prepareStatement(SQL_FIND_ALL);
+
+			rs = pst.executeQuery();
+			
+			
+			while (rs.next()) {
+				dep = mapDepartment.get(rs.getInt("DepartmentId"));
+				
+				if(dep == null) {
+					dep = instanciateDepartment(rs);
+					mapDepartment.put(dep.getId(), dep);
+				}
+				
+				sel = instanciateSeller(rs, dep);
+				listSeller.add(sel);
+			}
+			
+			return listSeller;
+		} catch (SQLException e) {
+			throw new DBException(e.getMessage());
+		} finally {
+			try {
+				pst.close();
+				rs.close();
+			} catch (SQLException e) {
+				throw new DBException(e.getMessage());
+			}
+		}
 	}
 
 	@Override
