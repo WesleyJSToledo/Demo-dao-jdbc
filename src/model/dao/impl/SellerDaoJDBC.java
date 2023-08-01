@@ -19,18 +19,18 @@ import model.entities.Seller;
 
 public class SellerDaoJDBC implements SellerDao {
 
-	private static String SQL_FIND_BY_ID = "SELECT s.*, d.Name as DepName " + "FROM seller s "
-			+ "INNER JOIN department d ON s.DepartmentId = d.Id " + "WHERE s.Id = ?";
-	private static String SQL_FIND_ALL = "SELECT seller.*,department.Name as DepName "
-			+ "FROM seller INNER JOIN department " + "ON seller.DepartmentId = department.Id " + "ORDER BY Name";
-	private static String SQL_FIND_BY_DEPARTMENT = "SELECT seller.*,department.Name as DepName "
-			+ "FROM seller INNER JOIN department " + "ON seller.DepartmentId = department.Id "
-			+ "WHERE DepartmentId = ? " + "ORDER BY Name";
 	private static String SQL_INSERT_SELLER = "INSERT INTO seller (Name, Email, BirthDate, BaseSalary, DepartmentId) "
 			+ "VALUES (?, ?, ?, ?, ?)";
 	private static String SQL_UPDATE_SELLER = "UPDATE seller "
 			+ "SET Name = ?, Email = ?, BirthDate = ?, BaseSalary = ?, DepartmentId = ? " + "WHERE Id = ?";
-	private static String SQL_DELETE_SELLER = "DELETE FROM seller " + "WHERE Id = ?";
+	private static String SQL_DELETE_BY_ID_SELLER = "DELETE FROM seller " + "WHERE Id = ?";
+	private static String SQL_FIND_BY_ID_SELLER = "SELECT s.*, d.Name as DepName " + "FROM seller s "
+			+ "INNER JOIN department d ON s.DepartmentId = d.Id " + "WHERE s.Id = ?";
+	private static String SQL_FIND_ALL_SELLER = "SELECT seller.*,department.Name as DepName "
+			+ "FROM seller INNER JOIN department " + "ON seller.DepartmentId = department.Id " + "ORDER BY Name";
+	private static String SQL_FIND_BY_DEPARTMENT = "SELECT seller.*,department.Name as DepName "
+			+ "FROM seller INNER JOIN department " + "ON seller.DepartmentId = department.Id "
+			+ "WHERE DepartmentId = ? " + "ORDER BY Name";
 
 	private Connection connection;
 
@@ -100,13 +100,13 @@ public class SellerDaoJDBC implements SellerDao {
 		PreparedStatement ps = null;
 
 		try {
-			ps = connection.prepareStatement(SQL_DELETE_SELLER);
+			ps = connection.prepareStatement(SQL_DELETE_BY_ID_SELLER);
 
 			ps.setInt(1, id);
 
 			int rowsAffected = ps.executeUpdate();
-			
-			if(rowsAffected == 0) {
+
+			if (rowsAffected == 0) {
 				throw new DBException("Id does not exist");
 			}
 
@@ -115,7 +115,6 @@ public class SellerDaoJDBC implements SellerDao {
 		} finally {
 			DB.closeStatement(ps);
 		}
-
 
 	}
 
@@ -129,7 +128,7 @@ public class SellerDaoJDBC implements SellerDao {
 		Seller sel = null;
 
 		try {
-			pst = connection.prepareStatement(SQL_FIND_BY_ID);
+			pst = connection.prepareStatement(SQL_FIND_BY_ID_SELLER);
 			pst.setInt(1, id);
 
 			rs = pst.executeQuery();
@@ -160,7 +159,7 @@ public class SellerDaoJDBC implements SellerDao {
 		Map<Integer, Department> mapDepartment = new HashMap<>();
 
 		try {
-			pst = connection.prepareStatement(SQL_FIND_ALL);
+			pst = connection.prepareStatement(SQL_FIND_ALL_SELLER);
 
 			rs = pst.executeQuery();
 
