@@ -30,6 +30,7 @@ public class SellerDaoJDBC implements SellerDao {
 			+ "VALUES (?, ?, ?, ?, ?)";
 	private static String SQL_UPDATE_SELLER = "UPDATE seller "
 			+ "SET Name = ?, Email = ?, BirthDate = ?, BaseSalary = ?, DepartmentId = ? " + "WHERE Id = ?";
+	private static String SQL_DELETE_SELLER = "DELETE FROM seller " + "WHERE Id = ?";
 
 	private Connection connection;
 
@@ -86,7 +87,6 @@ public class SellerDaoJDBC implements SellerDao {
 
 			ps.executeUpdate();
 
-
 		} catch (SQLException e) {
 			throw new DBException(e.getMessage());
 		} finally {
@@ -97,7 +97,25 @@ public class SellerDaoJDBC implements SellerDao {
 
 	@Override
 	public void deleteById(Integer id) {
-		// TODO Auto-generated method stub
+		PreparedStatement ps = null;
+
+		try {
+			ps = connection.prepareStatement(SQL_DELETE_SELLER);
+
+			ps.setInt(1, id);
+
+			int rowsAffected = ps.executeUpdate();
+			
+			if(rowsAffected == 0) {
+				throw new DBException("Id does not exist");
+			}
+
+		} catch (SQLException e) {
+			throw new DBException(e.getMessage());
+		} finally {
+			DB.closeStatement(ps);
+		}
+
 
 	}
 
