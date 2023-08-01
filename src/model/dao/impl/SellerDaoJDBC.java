@@ -23,12 +23,13 @@ public class SellerDaoJDBC implements SellerDao {
 			+ "INNER JOIN department d ON s.DepartmentId = d.Id " + "WHERE s.Id = ?";
 	private static String SQL_FIND_ALL = "SELECT seller.*,department.Name as DepName "
 			+ "FROM seller INNER JOIN department " + "ON seller.DepartmentId = department.Id " + "ORDER BY Name";
-	private static String SQL_INSERT_SELLER = "INSERT INTO seller (Name, Email, BirthDate, BaseSalary, DepartmentId) "
-			+ "VALUES (?, ?, ?, ?, ?)";
-
 	private static String SQL_FIND_BY_DEPARTMENT = "SELECT seller.*,department.Name as DepName "
 			+ "FROM seller INNER JOIN department " + "ON seller.DepartmentId = department.Id "
 			+ "WHERE DepartmentId = ? " + "ORDER BY Name";
+	private static String SQL_INSERT_SELLER = "INSERT INTO seller (Name, Email, BirthDate, BaseSalary, DepartmentId) "
+			+ "VALUES (?, ?, ?, ?, ?)";
+	private static String SQL_UPDATE_SELLER = "UPDATE seller "
+			+ "SET Name = ?, Email = ?, BirthDate = ?, BaseSalary = ?, DepartmentId = ? " + "WHERE Id = ?";
 
 	private Connection connection;
 
@@ -71,7 +72,26 @@ public class SellerDaoJDBC implements SellerDao {
 
 	@Override
 	public void update(Seller sel) {
-		// TODO Auto-generated method stub
+		PreparedStatement ps = null;
+
+		try {
+			ps = connection.prepareStatement(SQL_UPDATE_SELLER);
+
+			ps.setString(1, sel.getName());
+			ps.setString(2, sel.getEmail());
+			ps.setDate(3, new java.sql.Date(sel.getBirthDate().getTime()));
+			ps.setDouble(4, sel.getBaseSalary());
+			ps.setInt(5, sel.getDepartment().getId());
+			ps.setInt(6, sel.getId());
+
+			ps.executeUpdate();
+
+
+		} catch (SQLException e) {
+			throw new DBException(e.getMessage());
+		} finally {
+			DB.closeStatement(ps);
+		}
 
 	}
 
