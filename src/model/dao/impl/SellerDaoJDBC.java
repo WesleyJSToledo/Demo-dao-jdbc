@@ -44,6 +44,8 @@ public class SellerDaoJDBC implements SellerDao {
 	public Seller findById(Integer id) {
 		PreparedStatement pst = null;
 		ResultSet rs = null;
+		Department dep = null;
+		Seller sel = null;
 
 		try {
 			pst = connection.prepareStatement(SQL_FIND_BY_ID);
@@ -52,22 +54,11 @@ public class SellerDaoJDBC implements SellerDao {
 			rs = pst.executeQuery();
 
 			if (rs.next()) {
-				Department dep = new Department();
-				Seller sel = new Seller();
-
-				dep.setId(rs.getInt("DepartmentId"));
-				dep.setName(rs.getString("DepName"));
-
-				sel.setId(rs.getInt("Id"));
-				sel.setName(rs.getString("Name"));
-				sel.setEmail(rs.getString("Email"));
-				sel.setBirthDate(rs.getDate("BirthDate"));
-				sel.setBaseSalary(rs.getDouble("BaseSalary"));
-				sel.setDepartment(dep);
-
-				return sel;
+				dep = instanciateDepartment(rs);
+				sel = instanciateSeller(rs, dep);
 			}
-			return null;
+			
+			return sel;
 		} catch (SQLException e) {
 			throw new DBException(e.getMessage());
 		} finally {
@@ -77,7 +68,6 @@ public class SellerDaoJDBC implements SellerDao {
 			} catch (SQLException e) {
 				throw new DBException(e.getMessage());
 			}
-
 		}
 	}
 
@@ -85,6 +75,25 @@ public class SellerDaoJDBC implements SellerDao {
 	public List<Seller> findAll() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	
+	private Seller instanciateSeller(ResultSet rs, Department dep) throws SQLException {
+		Seller sel = new Seller();
+		sel.setId(rs.getInt("Id"));
+		sel.setName(rs.getString("Name"));
+		sel.setEmail(rs.getString("Email"));
+		sel.setBirthDate(rs.getDate("BirthDate"));
+		sel.setBaseSalary(rs.getDouble("BaseSalary"));
+		sel.setDepartment(dep);
+		return sel;
+	}
+
+	private Department instanciateDepartment(ResultSet rs) throws SQLException {
+		Department dep = new Department();
+		dep.setId(rs.getInt("DepartmentId"));
+		dep.setName(rs.getString("DepName"));
+		return dep;
 	}
 
 }
